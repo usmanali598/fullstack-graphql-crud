@@ -5,6 +5,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 const BooksQuery = ()=> {
   const [books, setBooks] = useState();
   const [name, setName] = useState('');
+  const [authorName, setAuthorName] = useState('');
   const [author, setAuthor] = useState('');
   const [updateId, setUpdateId] = useState('');
   const [updateName, setUpdateName] = useState('');
@@ -48,6 +49,23 @@ const BooksQuery = ()=> {
       // .then(data => console.log('data returned:', data));
       setName('');
       setAuthor('');
+  }
+
+  const addAuthor = () => {
+    fetch('http://localhost:5000/graphql', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({
+        "query": `mutation{ addAuthor(name:"${authorName}"){id name} }`
+      })
+    })
+      .then(r => r.json())
+      .then(data => console.log('data returned:', data));
+      console.log(authorName, 'authorname')
+      setAuthorName('');
   }
 
   const updateBook = () => {
@@ -117,12 +135,25 @@ const BooksQuery = ()=> {
             </FormGroup>
             {' '}
             <FormGroup>
-              <Label for="author" hidden>Author</Label>
-              <Input type="number" value={author} name="authorId" onChange={(e) => setAuthor(e.target.value)} id="examplePassword" placeholder="Author" />
+              <Label for="author" hidden>Author Id</Label>
+              <Input type="number" value={author} name="authorId" onChange={(e) => setAuthor(e.target.value)} id="" placeholder="Author" />
             </FormGroup>
             {' '}
             <p></p>
-            <Button color="success" onClick={addBooks}>Submit</Button>
+            <Button color="success" onClick={addBooks}>Book</Button>
+          </Form>
+        </div>
+
+        <div style={{display:'grid', placeItems:'center'}}>
+          <Form inline>
+            <h2>Add Author</h2>
+            <FormGroup>
+              <Label for="name" hidden>Name</Label>
+              <Input type="text" name="name" value={authorName} onChange={(e) => setAuthorName(e.target.value)} id="authorName" placeholder="Name of Author" />
+            </FormGroup>
+            {' '}
+            <p></p>
+            <Button color="success" onClick={addAuthor}>Author</Button>
           </Form>
         </div>
 
