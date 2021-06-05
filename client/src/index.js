@@ -7,32 +7,9 @@ import BooksQuery from './BooksQuery';
 import AuthorQuery from './AuthorQuery';
 import { ApolloClient, InMemoryCache } from '@apollo/client';
 
-import { gql } from '@apollo/client';
-
-const client = new ApolloClient({
-  uri: 'http://localhost:5000/graphql',
-  cache: new InMemoryCache()
-});
-
-// client
-//   .query({
-//     query: gql`
-//       query Query {
-//         books{
-//           id
-//           name
-//           authorId
-//           author{id name}
-//         }
-//       }
-//     `
-//   })
-//   .then(result => console.log(result, 'result on talla'));
 
 ReactDOM.render(
-  <ApolloProvider client={client}>
-    <AuthorQuery />
-  </ApolloProvider>,
+    <BooksQuery />,
   document.getElementById('root'),
 );
 

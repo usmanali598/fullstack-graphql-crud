@@ -134,7 +134,6 @@ const RootMutationType = new GraphQLObjectType({
       },
       resolve: (parent, args) => {
         books = books.filter(it => it.id !== args.id);
-        console.log(books, 'new');
         return books[args.id];
       }
     },

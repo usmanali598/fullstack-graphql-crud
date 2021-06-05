@@ -1,83 +1,79 @@
-import React from 'react';
-import { Button, Table } from 'reactstrap';
-import { useQuery, gql, useMutation } from '@apollo/client';
+import React, { useState, useEffect } from 'react';
+import { Button, Table, Form, FormGroup, Label, Input } from 'reactstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
-// import { request, gql } from 'graphql-request'
-const Books_Kirja = gql`
-  query Books {
-    books{
-      id
-      name
-      authorId
-      author {
-          id 
-          name
-        }
-    }
+
+const BooksQuery = ()=> {
+  const [books, setBooks] = useState();
+
+  const addBook = (name, authorId) => {
+    fetch('http://localhost:5000/graphql', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({
+        "query": `mutation{ addBook(name:${name}, authorId:${authorId}){id name authorId} }`
+      })
+    })
+      .then(r => r.json())
+      .then(data => console.log('data returned:', data));
   }
-`;
 
-const CREATE_BOOKS = gql`
-  mutation CreateBooks($text: String!) {
-    createBooks(text: $text)
+  const getBooks = () => {
+    fetch('http://localhost:5000/graphql', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({
+        query: "{ books{id name authorId author{id name} } }"
+      })
+    })
+      .then(r => r.json())
+      .then(data => setBooks(data.data.books));
   }
-`;
 
-const REMOVE_BOOKS = gql`
-  mutation RemoveBooks($id: String!) {
-    removeBooks(id: $id)
+  useEffect(() => {
+    getBooks();
+  }, []);
+
+  const deleteBook = (id) => {
+    fetch('http://localhost:5000/graphql', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({ "query": `mutation{ deleteBook(id:${id}){id} }` })
+    })
+      .then(r => r.json())
+      .then(data => console.log('data returned:', data));
   }
-`;
 
-const UPDATE_BOOKS = gql`
-  mutation UpdateBooks($id: String!) {
-    updateBooks(id: $id)
+  const removeBook = (e)=>{
+    deleteBook(e.target.id);
+    getBooks();
   }
-`;
 
-const getBooks = ()=>{
-  fetch('http://localhost:5000/graphql', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    },
-    body: JSON.stringify({ query: "{ books{id name} }" })
-  })
-    .then(r => r.json())
-    .then(data => console.log('data returned:', data));
-}
-
-const deleteBook = ()=>{
-  fetch('http://localhost:5000/graphql', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    },
-    body: JSON.stringify({ "query": "mutation{ deleteBook(id:1){id} }" })
-  })
-    .then(r => r.json())
-    .then(data => console.log('data returned:', data));
-}
-
-const BooksQuery = ({id})=> {
-
-  // console.log(id, 'katso')
-    // const { loading, error, data } = useQuery(Books_Kirja);
-    // const [deleteBook] = useMutation(REMOVE_BOOKS);
-
-    // const handleOnClick = (event) => {
-    //   event.preventDefault();
-
-    //   deleteBook({ variables: { id } });
-    // };
-    // // console.log(data, 'data', Books_Kirja, 'Books')
-    // if (loading) return <p>Loading...</p>;
-    // if (error) return <p>Error :(</p>;
-
+  // const addBooks = (e)=>{
+  //   addBook(e.target.id);
+  //   getBooks();
+  // }
+  console.log(books, 'book')
     return (
         <div>
+        <Form >
+            <Label for="exampleEmail">Name</Label>
+            <Input type="email" name="name" id="bookName" placeholder="Name of book" />
+          <FormGroup>
+            <Label for="examplePassword">Author</Label>
+            <Input type="password" name="authorId" id="examplePassword" placeholder="Author" />
+          </FormGroup>
+          <Button color="success">Submit</Button>
+        </Form>
+   
         <Table>
           <thead>
             <tr>
@@ -89,20 +85,17 @@ const BooksQuery = ({id})=> {
             </tr>
           </thead>
           <tbody>
-          {/* {data.books.map((book) => {
-            return <tr>
-                    <td>{book.id}</td>
-                    <td>{book.name}</td>
-                    <td>{book.author.name}</td>
-                    <td><Button color="success">update</Button></td>
-                    <td><Button color="danger" 
-                onClick={() => {
-                  deleteBook({ variables: { id: book.id } });
-                  window.location.reload();
-                }}>remove</Button></td>
+            {books && books.map((book) => {
+            return <tr key={book.id}>
+                    <td>{book.id && book.id}</td>
+                    <td>{book.name && book.name}</td>
+                    <td>{book.author && book.author.name}</td>
+                    <td><Button color="primary">update</Button></td>
+                    <td><Button color="danger" id={book.id} 
+                onClick={(event) => removeBook(event)}>remove</Button></td>
                   </tr>
             })
-          } */}
+          }
           </tbody>
         </Table>
         </div>
